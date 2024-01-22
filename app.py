@@ -20,7 +20,7 @@ def get_weather():
     params = {
         'q': city,
         'appid': OPENWEATHERMAP_API_KEY,
-        'units': 'metric',  # You can change units to 'imperial' for Fahrenheit
+        'units': 'metric', 
     }
 
     response = requests.get(OPENWEATHERMAP_API_URL, params=params)
@@ -36,4 +36,17 @@ def get_ok():
     return jsonify({'status': 'OK'})
 
 if __name__ == '__main__':
-    app.run(port=80)
+    import uwsgi
+
+    uwsgi.app = app
+    uwsgi.psgi = True
+    uwsgi.route('^/weather$ uwsgi:/weather', methods=['GET'])
+    uwsgi.route('^/ok$ uwsgi:/ok', methods=['GET'])
+
+    uwsgi.socket = ':5005'
+    uwsgi.stats = ':1717'
+    uwsgi.master = True
+    uwsgi.processes = 4
+
+    uwsgi.run()
+

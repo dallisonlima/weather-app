@@ -31,5 +31,9 @@ def get_weather():
     else:
         return jsonify({'error': 'Failed to retrieve weather data'}), response.status_code
 
+@app.route('/ok', methods=['GET'])
+def get_ok():
+    return jsonify({'status': 'OK'})
+
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5002)

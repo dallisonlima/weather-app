@@ -1,14 +1,22 @@
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
+from dotenv import load_dotenv
+import os
+
+# Carregar as variáveis de ambiente do arquivo .env
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
-OPENWEATHERMAP_API_KEY = 'ee4b9b1e8cad2bc72ca10ab20ab190df'
-OPENWEATHERMAP_API_URL = 'http://api.openweathermap.org/data/2.5/weather'
+# Usar as variáveis de ambiente
+OPENWEATHERMAP_API_KEY = os.getenv('OPENWEATHERMAP_API_KEY')
+OPENWEATHERMAP_API_URL = os.getenv('OPENWEATHERMAP_API_URL')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/weather', methods=['GET'])
 def get_weather():
@@ -21,6 +29,7 @@ def get_weather():
         'q': city,
         'appid': OPENWEATHERMAP_API_KEY,
         'units': 'metric', 
+        'lang': 'pt_br'  # Certificando-se de incluir o idioma
     }
 
     response = requests.get(OPENWEATHERMAP_API_URL, params=params)
@@ -36,17 +45,4 @@ def get_ok():
     return jsonify({'status': 'OK'})
 
 if __name__ == '__main__':
-    import uwsgi
-
-    uwsgi.app = app
-    uwsgi.psgi = True
-    uwsgi.route('^/weather$ uwsgi:/weather', methods=['GET'])
-    uwsgi.route('^/ok$ uwsgi:/ok', methods=['GET'])
-
-    uwsgi.socket = ':5005'
-    uwsgi.stats = ':1717'
-    uwsgi.master = True
-    uwsgi.processes = 4
-
-    uwsgi.run()
-
+    app.run(host='0.0.0.0', port=5005)

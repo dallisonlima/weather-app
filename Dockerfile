@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["uwsgi", "--http", ":5005", "--wsgi-file", "app.py", "--callable", "app", "--processes", "4", "--stats", ":1717"]
+EXPOSE 5005
 
-EXPOSE 5005/tcp
+CMD ["uwsgi", "--http", ":5005", "--module", "app:app", "--processes", "4", "--stats", ":1717"]
